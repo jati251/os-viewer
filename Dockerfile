@@ -1,14 +1,14 @@
-# Use official Nginx image
+# Stage 1: build React app
+FROM node:20-alpine as build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Stage 2: serve with nginx
 FROM nginx:stable-alpine
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Remove default Nginx content
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy React build to Nginx
-COPY build/ /usr/share/nginx/html
-
-# Expose HTTP
 EXPOSE 80
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
